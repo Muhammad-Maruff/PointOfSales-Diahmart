@@ -1,13 +1,12 @@
-<header class="navbar navbar-expand-md navbar-light d-none d-lg-flex">
+<header class="navbar navbar-expand-md navbar-dark" style="background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)">
     <div class="container-fluid">
         <div class="navbar-nav flex-row order-md-last">
-            <!-- User Menu -->
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
+                <a href="#" class="nav-link d-flex lh-1 text-white p-0" data-bs-toggle="dropdown">
                     <span class="avatar avatar-sm">JD</span>
                     <div class="d-none d-xl-block ps-2">
-                        <div>John Doe</div>
-                        <div class="mt-1 small text-muted">Administrator</div>
+                        <div class="text-white">John Doe</div>
+                        <div class="mt-1 small text-white opacity-75">Administrator</div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end">
@@ -19,8 +18,7 @@
             </div>
         </div>
         
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
+        <div class="breadcrumb text-white">
             @yield('breadcrumb')
         </div>
     </div>

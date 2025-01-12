@@ -131,3 +131,35 @@ body {
     color: white;
 }
 
+.navbar-dark .navbar-nav .nav-link .nav-link-title {
+    color: #ffffff;
+}
+
+.navbar-vertical .nav-link-icon i,
+.navbar-vertical .nav-link-title {
+    color: #ffffff !important;
+    padding: 5px;
+}
+
+.navbar-vertical .nav-link.active {
+    position: relative;
+}
+
+.navbar-vertical .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    z-index: 0;
+    margin: 0 1rem;
+}
+
+.navbar-vertical .nav-link-icon,
+.navbar-vertical .nav-link-title {
+    position: relative;
+    z-index: 1;
+}
