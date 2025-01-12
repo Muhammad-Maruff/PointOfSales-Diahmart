@@ -16,10 +16,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('username')->unique();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->text('address')->nullable();
+            $table->string('phone_number')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->boolean('isactive')->default(false);
             $table->timestamps();
         });
     }
@@ -31,6 +33,13 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+     // Hapus index unique
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropUnique(['username']);
+        $table->dropUnique(['email']);
+    });
+
+    // Hapus tabel
+    Schema::dropIfExists('users');
     }
 };
