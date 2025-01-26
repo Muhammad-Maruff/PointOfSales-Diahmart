@@ -127,3 +127,54 @@ body {
     box-shadow: 0 8px 20px rgba(107, 115, 255, 0.3);
     color: white;
 }
+
+.modal-header {
+    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
+.modal-header .btn-close:hover {
+    filter: brightness(0) invert(1);
+    opacity: 0.75;
+}
+
+.modal-header .btn-close:focus {
+    filter: brightness(0) invert(1);
+    opacity: 0.75;
+    box-shadow: none;
+}
+
+.modal-header .btn-close:active {
+    filter: brightness(0) invert(1);
+    opacity: 0.5;
+}
+
+.btn-new-data {
+    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.btn-new-data:hover {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+
+.modal-footer .btn-save {
+    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.modal-footer .btn-save:hover {
+    color: #ffffff;
+    font-weight: bold;
+}
+

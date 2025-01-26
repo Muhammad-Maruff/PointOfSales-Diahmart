@@ -44,6 +44,8 @@ function initializePasswordToggles() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    createShapes();
-    initializePasswordToggles();
+    if (document.querySelector('.floating-shapes')) {
+        createShapes();
+        initializePasswordToggles();
+    }
 });

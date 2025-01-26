@@ -5,8 +5,8 @@
                 <a href="#" class="nav-link d-flex lh-1 text-white p-0" data-bs-toggle="dropdown">
                     <span class="avatar avatar-sm">JD</span>
                     <div class="d-none d-xl-block ps-2">
-                        <div class="text-white">John Doe</div>
-                        <div class="mt-1 small text-white opacity-75">Administrator</div>
+                        <div class="text-white">{{ucfirst(auth()->user()->username)}}</div>
+                        <div class="mt-1 small text-white opacity-75">{{ucfirst(auth()->user()->role->name)}}</div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end">

@@ -31,12 +31,17 @@ class UserController extends Controller
                 'username' => 'required|string|unique:users|max:255',
                 'password' => 'required|string|min:5',
                 'role_id' => 'required|exists:roles,id',
+                'phone_number' => 'required',
+                'address' => 'required',
                 'isactive' => 'boolean'
             ], [
-                'name.required' => 'Name is required',
-                'email.unique' => 'Email already exists',
-                'username.unique' => 'Username already exists',
-                'password.min' => 'Password must be at least 6 characters'
+                'name.required' => 'Nama harus diisi',
+                'email.unique' => 'Email sudah digunakan',
+                'username.unique' => 'Username already digunakan',
+                'password.min' => 'Password harus lebih dari 5 karakter',
+                'phone_number.required' => 'Nomor telepon harus diisi',
+                'address.required' => 'Alamat harus diisi',
+                'role_id.required' => 'Role harus dipilih',
             ]);
     
             if ($validator->fails()) {
@@ -55,7 +60,7 @@ class UserController extends Controller
     
             return response()->json([
                 'status' => true,
-                'message' => 'User created successfully!'
+                'message' => 'User berhasil dibuat'
             ], 200);
     
         } catch (\Exception $e) {

@@ -52,8 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: 'success',
                     title: 'Success!',
                     text: data.message,
-                    showConfirmButton: false,
-                    timer: 1500
+                    showConfirmButton: true,
                 }).then(() => {
                     userModal.hide();
                     window.location.reload();

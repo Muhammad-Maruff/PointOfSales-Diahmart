@@ -1,5 +1,4 @@
 @extends('layouts.mainLayout')
-
 @section('title', 'User Management')
 
 @section('content')
@@ -18,9 +17,9 @@
                 <div class="col-auto ms-auto d-print-none">
                     <div class="d-flex">
                         <input type="search" class="form-control d-inline-block w-9 me-3" data-search-user placeholder="Search user…">
-                        <button type="button" class="btn btn-primary" id="btn-new-user">
-                            <i class="ti ti-plus icon"></i>
-                            New User
+                        <button type="button" class="btn btn-new-data" id="btn-new-user">
+                            <i class="ti ti-circle-plus icon"></i>
+                           Tambah
                         </button>
                     </div>
                 </div>
@@ -39,7 +38,7 @@
                     <div class="text-muted">{{ $user->role->roles }}</div>
                     <div class="mt-3">
                         <span class="badge {{ $user->isactive ? 'bg-green-lt' : 'bg-red-lt' }}">
-                            {{ $user->isactive ? 'Active' : 'Inactive' }}
+                            {{ $user->isactive ? 'Aktif' : 'Tidak Aktif' }}
                         </span>
                     </div>
                 </div>

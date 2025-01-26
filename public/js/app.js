@@ -2279,8 +2279,10 @@ function initializePasswordToggles() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
-  createShapes();
-  initializePasswordToggles();
+  if (document.querySelector('.floating-shapes')) {
+    createShapes();
+    initializePasswordToggles();
+  }
 });
 
 /***/ }),
@@ -2357,8 +2359,7 @@ document.addEventListener('DOMContentLoaded', function () {
               icon: 'success',
               title: 'Success!',
               text: data.message,
-              showConfirmButton: false,
-              timer: 1500
+              showConfirmButton: true
             }).then(function () {
               userModal.hide();
               window.location.reload();
