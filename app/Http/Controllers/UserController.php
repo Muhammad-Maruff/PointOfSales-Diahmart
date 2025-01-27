@@ -72,26 +72,69 @@ class UserController extends Controller
         }
     }
     
-
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'nama' => 'required',
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'username' => 'required|unique:users,username,'.$user->id,
-            'role_id' => 'required|exists:roles,id',
-            'isactive' => 'boolean'
-        ]);
-
-        $validated['isactive'] = $request->has('isactive');
-        
-        $user->update($validated);
-        return redirect()->route('users.index')->with('success', 'User updated successfully');
+        try {
+            $validated = $request->validate([
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email,'.$user->id,
+                'username' => 'required|unique:users,username,'.$user->id,
+                'phone_number' => 'required',
+                'address' => 'required',
+                'role_id' => 'required|exists:roles,id',
+                'isactive' => 'required|in:0,1' // This ensures only 0 or 1 values
+            ]);
+    
+            // Convert checkbox value to 0 or 1
+            $validated['isactive'] = $request->isactive ? 1 : 0;
+            
+            $user->update($validated);
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Data user berhasil diperbarui',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'username' => $user->username,
+                    'role_id' => $user->role_id,
+                    'isactive' => $user->isactive
+                ]
+            ], 200);
+    
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
+    
+    
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully');
+        try {
+            $user->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'User berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menghapus user'
+            ], 500);
+        }
     }
+    
 }

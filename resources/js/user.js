@@ -1,7 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2
+    document.querySelectorAll('.select2').forEach(select => {
+        new TomSelect(select, {
+            placeholder: "Pilih Role",
+            allowClear: true,
+            plugins: ['clear_button'],
+            maxItems: 1
+        });
+    });
+
     // Modal instance
     const userModal = new bootstrap.Modal(document.getElementById('modal-add-user'));
-    
+
     // Initialize search functionality
     const searchInput = document.querySelector('[data-search-user]');
     if (searchInput) {
@@ -25,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open modal on New User button click
     document.getElementById('btn-new-user').addEventListener('click', function() {
         document.getElementById('form-user').reset();
+        $('.select2').val('').trigger('change'); // Reset Select2
         userModal.show();
     });
 
@@ -44,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Accept': 'application/json'
                 }
             });
-    
+
             const data = await response.json();
-    
+
             if (data.status) {
                 Swal.fire({
                     icon: 'success',
@@ -64,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage += `<li>${error}</li>`;
                     });
                     errorMessage += '</ul>';
-    
+
                     Swal.fire({
                         icon: 'error',
                         title: data.message,
@@ -82,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
     // Edit user
     const UserManager = {
         editUser: async function(id) {
@@ -91,49 +102,124 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (response.ok) {
-                    document.getElementById('edit-form').setAttribute('action', `/users/${id}`);
-                    document.getElementById('edit-name').value = data.nama;
+                    const editModal = document.getElementById('modal-edit-user');
+                    const modalInstance = new bootstrap.Modal(editModal);
+                    
+                    // Set form action dan data
+                    const editForm = document.getElementById('edit-form');
+                    editForm.setAttribute('action', `/users/${id}`);
+                    
+                    // Set values...
+                    document.getElementById('edit-name').value = data.name;
                     document.getElementById('edit-email').value = data.email;
                     document.getElementById('edit-username').value = data.username;
-                    document.getElementById('edit-role').value = data.role_id;
-                    document.getElementById('edit-status').checked = data.isactive;
-                } else {
-                    throw new Error('Failed to fetch user data');
+                    
+                    const roleSelect = document.getElementById('edit-role');
+                    if (roleSelect.tomselect) {
+                        roleSelect.tomselect.setValue(data.role_id);
+                    }
+                    
+                    document.getElementById('edit-phone').value = data.phone_number;
+                    document.getElementById('edit-address').value = data.address;
+                    document.getElementById('edit-status').checked = data.isactive == 1;
+        
+                    // Cleanup modal saat ditutup
+                    editModal.addEventListener('hidden.bs.modal', function () {
+                        document.body.classList.remove('modal-open');
+                        const modalBackdrop = document.querySelector('.modal-backdrop');
+                        if (modalBackdrop) {
+                            modalBackdrop.remove();
+                        }
+                        editForm.reset();
+                    });
+        
+                    modalInstance.show();
+        
+                    // Form submission handler
+                    editForm.onsubmit = async function(e) {
+                        e.preventDefault();
+                        
+                        try {
+                            const formData = new FormData(this);
+                            formData.set('isactive', document.getElementById('edit-status').checked ? 1 : 0);
+        
+                            const response = await fetch(this.getAttribute('action'), {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                }
+                            });
+        
+                            const result = await response.json();
+        
+                            if (result.status) {
+                                modalInstance.hide();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: result.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: result.message,
+                                    confirmButtonText: 'Tutup'
+                                });
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat memperbarui data',
+                                confirmButtonText: 'Tutup'
+                            });
+                        }
+                    };
                 }
             } catch (error) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: error.message
+                    title: 'Gagal',
+                    text: error.message,
+                    confirmButtonText: 'Tutup'
                 });
             }
         },
-
+        
         deleteUser: function(id) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Hapus User?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
                         const response = await fetch(`/users/${id}`, {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
                             }
                         });
-
+        
                         const data = await response.json();
-
+        
                         if (response.ok) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Deleted!',
+                                title: 'Berhasil!',
                                 text: data.message,
                                 showConfirmButton: false,
                                 timer: 1500
@@ -141,18 +227,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                 window.location.reload();
                             });
                         } else {
-                            throw new Error(data.message || 'Failed to delete user');
+                            throw new Error(data.message || 'Gagal menghapus user');
                         }
                     } catch (error) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Oops...',
+                            title: 'Gagal',
                             text: error.message
                         });
                     }
                 }
             });
         }
+        
     };
 
     // Make UserManager available globally

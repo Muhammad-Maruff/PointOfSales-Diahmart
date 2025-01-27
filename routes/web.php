@@ -28,7 +28,7 @@ Route::post('register', [AuthController::class,  'registerProcess'])->name('regi
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // User Management Routes
-Route::get('/users', [UserController::class, 'index'])->name('users');
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');

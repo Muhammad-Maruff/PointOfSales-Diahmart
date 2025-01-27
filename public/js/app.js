@@ -2298,6 +2298,16 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 document.addEventListener('DOMContentLoaded', function () {
+  // Initialize Select2
+  document.querySelectorAll('.select2').forEach(function (select) {
+    new TomSelect(select, {
+      placeholder: "Pilih Role",
+      allowClear: true,
+      plugins: ['clear_button'],
+      maxItems: 1
+    });
+  });
+
   // Modal instance
   var userModal = new bootstrap.Modal(document.getElementById('modal-add-user'));
 
@@ -2322,6 +2332,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Open modal on New User button click
   document.getElementById('btn-new-user').addEventListener('click', function () {
     document.getElementById('form-user').reset();
+    $('.select2').val('').trigger('change'); // Reset Select2
     userModal.show();
   });
 
@@ -2410,50 +2421,131 @@ document.addEventListener('DOMContentLoaded', function () {
   // Edit user
   var UserManager = {
     editUser: function () {
-      var _editUser = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(id) {
-        var response, data;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
+      var _editUser = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(id) {
+        var response, data, editModal, modalInstance, editForm, roleSelect;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
             case 0:
-              _context2.prev = 0;
-              _context2.next = 3;
+              _context3.prev = 0;
+              _context3.next = 3;
               return fetch("/users/".concat(id, "/edit"));
             case 3:
-              response = _context2.sent;
-              _context2.next = 6;
+              response = _context3.sent;
+              _context3.next = 6;
               return response.json();
             case 6:
-              data = _context2.sent;
-              if (!response.ok) {
-                _context2.next = 16;
-                break;
+              data = _context3.sent;
+              if (response.ok) {
+                editModal = document.getElementById('modal-edit-user');
+                modalInstance = new bootstrap.Modal(editModal); // Set form action dan data
+                editForm = document.getElementById('edit-form');
+                editForm.setAttribute('action', "/users/".concat(id));
+
+                // Set values...
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-email').value = data.email;
+                document.getElementById('edit-username').value = data.username;
+                roleSelect = document.getElementById('edit-role');
+                if (roleSelect.tomselect) {
+                  roleSelect.tomselect.setValue(data.role_id);
+                }
+                document.getElementById('edit-phone').value = data.phone_number;
+                document.getElementById('edit-address').value = data.address;
+                document.getElementById('edit-status').checked = data.isactive == 1;
+
+                // Cleanup modal saat ditutup
+                editModal.addEventListener('hidden.bs.modal', function () {
+                  document.body.classList.remove('modal-open');
+                  var modalBackdrop = document.querySelector('.modal-backdrop');
+                  if (modalBackdrop) {
+                    modalBackdrop.remove();
+                  }
+                  editForm.reset();
+                });
+                modalInstance.show();
+
+                // Form submission handler
+                editForm.onsubmit = /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+                    var formData, _response, result;
+                    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                      while (1) switch (_context2.prev = _context2.next) {
+                        case 0:
+                          e.preventDefault();
+                          _context2.prev = 1;
+                          formData = new FormData(this);
+                          formData.set('isactive', document.getElementById('edit-status').checked ? 1 : 0);
+                          _context2.next = 6;
+                          return fetch(this.getAttribute('action'), {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                          });
+                        case 6:
+                          _response = _context2.sent;
+                          _context2.next = 9;
+                          return _response.json();
+                        case 9:
+                          result = _context2.sent;
+                          if (result.status) {
+                            modalInstance.hide();
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Berhasil!',
+                              text: result.message,
+                              showConfirmButton: false,
+                              timer: 1500
+                            }).then(function () {
+                              window.location.reload();
+                            });
+                          } else {
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Gagal!',
+                              text: result.message,
+                              confirmButtonText: 'Tutup'
+                            });
+                          }
+                          _context2.next = 16;
+                          break;
+                        case 13:
+                          _context2.prev = 13;
+                          _context2.t0 = _context2["catch"](1);
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat memperbarui data',
+                            confirmButtonText: 'Tutup'
+                          });
+                        case 16:
+                        case "end":
+                          return _context2.stop();
+                      }
+                    }, _callee2, this, [[1, 13]]);
+                  }));
+                  return function (_x3) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }();
               }
-              document.getElementById('edit-form').setAttribute('action', "/users/".concat(id));
-              document.getElementById('edit-name').value = data.nama;
-              document.getElementById('edit-email').value = data.email;
-              document.getElementById('edit-username').value = data.username;
-              document.getElementById('edit-role').value = data.role_id;
-              document.getElementById('edit-status').checked = data.isactive;
-              _context2.next = 17;
+              _context3.next = 13;
               break;
-            case 16:
-              throw new Error('Failed to fetch user data');
-            case 17:
-              _context2.next = 22;
-              break;
-            case 19:
-              _context2.prev = 19;
-              _context2.t0 = _context2["catch"](0);
+            case 10:
+              _context3.prev = 10;
+              _context3.t0 = _context3["catch"](0);
               Swal.fire({
                 icon: 'error',
-                title: 'Oops...',
-                text: _context2.t0.message
+                title: 'Gagal',
+                text: _context3.t0.message,
+                confirmButtonText: 'Tutup'
               });
-            case 22:
+            case 13:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
-        }, _callee2, null, [[0, 19]]);
+        }, _callee3, null, [[0, 10]]);
       }));
       function editUser(_x2) {
         return _editUser.apply(this, arguments);
@@ -2462,73 +2554,76 @@ document.addEventListener('DOMContentLoaded', function () {
     }(),
     deleteUser: function deleteUser(id) {
       Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        title: 'Hapus User?',
+        text: "Data yang dihapus tidak dapat dikembalikan!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
       }).then(/*#__PURE__*/function () {
-        var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(result) {
+        var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(result) {
           var response, data;
-          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-            while (1) switch (_context3.prev = _context3.next) {
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+            while (1) switch (_context4.prev = _context4.next) {
               case 0:
                 if (!result.isConfirmed) {
-                  _context3.next = 18;
+                  _context4.next = 18;
                   break;
                 }
-                _context3.prev = 1;
-                _context3.next = 4;
+                _context4.prev = 1;
+                _context4.next = 4;
                 return fetch("/users/".concat(id), {
                   method: 'DELETE',
                   headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
                   }
                 });
               case 4:
-                response = _context3.sent;
-                _context3.next = 7;
+                response = _context4.sent;
+                _context4.next = 7;
                 return response.json();
               case 7:
-                data = _context3.sent;
+                data = _context4.sent;
                 if (!response.ok) {
-                  _context3.next = 12;
+                  _context4.next = 12;
                   break;
                 }
                 Swal.fire({
                   icon: 'success',
-                  title: 'Deleted!',
+                  title: 'Berhasil!',
                   text: data.message,
                   showConfirmButton: false,
                   timer: 1500
                 }).then(function () {
                   window.location.reload();
                 });
-                _context3.next = 13;
+                _context4.next = 13;
                 break;
               case 12:
-                throw new Error(data.message || 'Failed to delete user');
+                throw new Error(data.message || 'Gagal menghapus user');
               case 13:
-                _context3.next = 18;
+                _context4.next = 18;
                 break;
               case 15:
-                _context3.prev = 15;
-                _context3.t0 = _context3["catch"](1);
+                _context4.prev = 15;
+                _context4.t0 = _context4["catch"](1);
                 Swal.fire({
                   icon: 'error',
-                  title: 'Oops...',
-                  text: _context3.t0.message
+                  title: 'Gagal',
+                  text: _context4.t0.message
                 });
               case 18:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
-          }, _callee3, null, [[1, 15]]);
+          }, _callee4, null, [[1, 15]]);
         }));
-        return function (_x3) {
-          return _ref2.apply(this, arguments);
+        return function (_x4) {
+          return _ref3.apply(this, arguments);
         };
       }());
     }
