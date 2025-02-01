@@ -2422,7 +2422,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var UserManager = {
     editUser: function () {
       var _editUser = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(id) {
-        var response, data, editModal, modalInstance, editForm, roleSelect;
+        var response, data, editModal, modalInstance, editForm, roleSelect, currentImageDiv;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -2437,11 +2437,16 @@ document.addEventListener('DOMContentLoaded', function () {
               data = _context3.sent;
               if (response.ok) {
                 editModal = document.getElementById('modal-edit-user');
-                modalInstance = new bootstrap.Modal(editModal); // Set form action dan data
+                editModal.addEventListener('hidden.bs.modal', function () {
+                  cleanupModal();
+                  var editForm = document.getElementById('edit-form');
+                  editForm.reset();
+                });
+                modalInstance = new bootstrap.Modal(editModal); // Set form action
                 editForm = document.getElementById('edit-form');
                 editForm.setAttribute('action', "/users/".concat(id));
 
-                // Set values...
+                // Set existing values
                 document.getElementById('edit-name').value = data.name;
                 document.getElementById('edit-email').value = data.email;
                 document.getElementById('edit-username').value = data.username;
@@ -2453,29 +2458,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('edit-address').value = data.address;
                 document.getElementById('edit-status').checked = data.isactive == 1;
 
-                // Cleanup modal saat ditutup
-                editModal.addEventListener('hidden.bs.modal', function () {
-                  document.body.classList.remove('modal-open');
-                  var modalBackdrop = document.querySelector('.modal-backdrop');
-                  if (modalBackdrop) {
-                    modalBackdrop.remove();
-                  }
-                  editForm.reset();
-                });
-                modalInstance.show();
+                // Tampilkan current image jika ada
+                currentImageDiv = document.getElementById('current-image');
+                if (data.image) {
+                  currentImageDiv.innerHTML = "<img src=\"/storage/".concat(data.image, "\" alt=\"Current Image\" style=\"max-width: 100px;\">");
+                } else {
+                  currentImageDiv.innerHTML = '';
+                }
 
                 // Form submission handler
                 editForm.onsubmit = /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-                    var formData, _response, result;
+                    var formData, response, result;
                     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                       while (1) switch (_context2.prev = _context2.next) {
                         case 0:
                           e.preventDefault();
-                          _context2.prev = 1;
                           formData = new FormData(this);
                           formData.set('isactive', document.getElementById('edit-status').checked ? 1 : 0);
-                          _context2.next = 6;
+                          _context2.next = 5;
                           return fetch(this.getAttribute('action'), {
                             method: 'POST',
                             body: formData,
@@ -2483,11 +2484,11 @@ document.addEventListener('DOMContentLoaded', function () {
                               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             }
                           });
-                        case 6:
-                          _response = _context2.sent;
-                          _context2.next = 9;
-                          return _response.json();
-                        case 9:
+                        case 5:
+                          response = _context2.sent;
+                          _context2.next = 8;
+                          return response.json();
+                        case 8:
                           result = _context2.sent;
                           if (result.status) {
                             modalInstance.hide();
@@ -2508,27 +2509,17 @@ document.addEventListener('DOMContentLoaded', function () {
                               confirmButtonText: 'Tutup'
                             });
                           }
-                          _context2.next = 16;
-                          break;
-                        case 13:
-                          _context2.prev = 13;
-                          _context2.t0 = _context2["catch"](1);
-                          Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: 'Terjadi kesalahan saat memperbarui data',
-                            confirmButtonText: 'Tutup'
-                          });
-                        case 16:
+                        case 10:
                         case "end":
                           return _context2.stop();
                       }
-                    }, _callee2, this, [[1, 13]]);
+                    }, _callee2, this);
                   }));
                   return function (_x3) {
                     return _ref2.apply(this, arguments);
                   };
                 }();
+                modalInstance.show();
               }
               _context3.next = 13;
               break;
@@ -2628,6 +2619,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }());
     }
   };
+  function cleanupModal() {
+    document.body.classList.remove('modal-open');
+    var modalBackdrop = document.querySelector('.modal-backdrop');
+    if (modalBackdrop) {
+      modalBackdrop.remove();
+    }
+  }
 
   // Make UserManager available globally
   window.UserManager = UserManager;

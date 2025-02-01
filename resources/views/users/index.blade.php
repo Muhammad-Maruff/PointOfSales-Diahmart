@@ -33,7 +33,7 @@
         <div class="col-md-6 col-lg-3">
             <div class="card">
                 <div class="card-body p-4 text-center">
-                    <span class="avatar avatar-xl mb-3 rounded" style="background-image: url(https://eu.ui-avatars.com/api/?name={{ urlencode($user->nama) }})"></span>
+                    <span class="avatar avatar-xl mb-3 rounded" style="background-image: url({{ $user->image ? Storage::url($user->image) : 'https://eu.ui-avatars.com/api/?name='. urlencode($user->name) }})"></span>
                     <h3 class="m-0 mb-1">{{ $user->name }}</h3>
                     <div class="text-muted">{{ $user->role->roles }}</div>
                     <div class="mt-3">

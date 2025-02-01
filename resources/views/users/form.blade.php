@@ -40,6 +40,10 @@
                     <div class="mb-3">
                         <label class="form-label required">Alamat</label>
                         <textarea class="form-control" name="address" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto Profile</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
                     </div>                    
                     <div class="mb-3">
                         <label class="form-check form-switch">
@@ -100,6 +104,11 @@
                         <label class="form-label required">Alamat</label>
                         <textarea class="form-control" name="address" id="edit-address" rows="3" required></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto Profile</label>
+                        <input type="file" class="form-control" name="image" id="edit-image" accept="image/*">
+                        <div id="current-image" class="mt-2"></div>
+                    </div>                    
                     <div class="mb-3">
                         <label class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="isactive" id="edit-status" checked>

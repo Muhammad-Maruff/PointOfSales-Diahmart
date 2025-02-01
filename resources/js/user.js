@@ -103,13 +103,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (response.ok) {
                     const editModal = document.getElementById('modal-edit-user');
+                    editModal.addEventListener('hidden.bs.modal', function() {
+                        cleanupModal();
+                        const editForm = document.getElementById('edit-form');
+                        editForm.reset();
+                    });
                     const modalInstance = new bootstrap.Modal(editModal);
                     
-                    // Set form action dan data
+                    // Set form action
                     const editForm = document.getElementById('edit-form');
                     editForm.setAttribute('action', `/users/${id}`);
                     
-                    // Set values...
+                    // Set existing values
                     document.getElementById('edit-name').value = data.name;
                     document.getElementById('edit-email').value = data.email;
                     document.getElementById('edit-username').value = data.username;
@@ -123,64 +128,53 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('edit-address').value = data.address;
                     document.getElementById('edit-status').checked = data.isactive == 1;
         
-                    // Cleanup modal saat ditutup
-                    editModal.addEventListener('hidden.bs.modal', function () {
-                        document.body.classList.remove('modal-open');
-                        const modalBackdrop = document.querySelector('.modal-backdrop');
-                        if (modalBackdrop) {
-                            modalBackdrop.remove();
-                        }
-                        editForm.reset();
-                    });
-        
-                    modalInstance.show();
+                    // Tampilkan current image jika ada
+                    const currentImageDiv = document.getElementById('current-image');
+                    if (data.image) {
+                        currentImageDiv.innerHTML = `<img src="/storage/${data.image}" alt="Current Image" style="max-width: 100px;">`;
+                    } else {
+                        currentImageDiv.innerHTML = '';
+                    }
         
                     // Form submission handler
                     editForm.onsubmit = async function(e) {
                         e.preventDefault();
                         
-                        try {
-                            const formData = new FormData(this);
-                            formData.set('isactive', document.getElementById('edit-status').checked ? 1 : 0);
+                        const formData = new FormData(this);
+                        formData.set('isactive', document.getElementById('edit-status').checked ? 1 : 0);
         
-                            const response = await fetch(this.getAttribute('action'), {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                }
-                            });
-        
-                            const result = await response.json();
-        
-                            if (result.status) {
-                                modalInstance.hide();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil!',
-                                    text: result.message,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(() => {
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: result.message,
-                                    confirmButtonText: 'Tutup'
-                                });
+                        const response = await fetch(this.getAttribute('action'), {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             }
-                        } catch (error) {
+                        });
+        
+                        const result = await response.json();
+        
+                        if (result.status) {
+                            modalInstance.hide();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: result.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat memperbarui data',
+                                text: result.message,
                                 confirmButtonText: 'Tutup'
                             });
                         }
                     };
+        
+                    modalInstance.show();
                 }
             } catch (error) {
                 Swal.fire({
@@ -240,7 +234,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        
     };
+
+function cleanupModal() {
+    document.body.classList.remove('modal-open');
+    const modalBackdrop = document.querySelector('.modal-backdrop');
+    if (modalBackdrop) {
+        modalBackdrop.remove();
+    }
+}
 
     // Make UserManager available globally
     window.UserManager = UserManager;

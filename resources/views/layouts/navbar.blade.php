@@ -3,7 +3,11 @@
         <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 text-white p-0" data-bs-toggle="dropdown">
-                    <span class="avatar avatar-sm">JD</span>
+                    <span class="avatar avatar-sm" style="background-image: url({{ auth()->user()->image ? Storage::url(auth()->user()->image) : '' }})">
+                        @if(!auth()->user()->image)
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        @endif
+                    </span>
                     <div class="d-none d-xl-block ps-2">
                         <div class="text-white">{{ucfirst(auth()->user()->username)}}</div>
                         <div class="mt-1 small text-white opacity-75">{{ucfirst(auth()->user()->role->name)}}</div>

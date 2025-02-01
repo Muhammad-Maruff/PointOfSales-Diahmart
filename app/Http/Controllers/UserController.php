@@ -33,15 +33,8 @@ class UserController extends Controller
                 'role_id' => 'required|exists:roles,id',
                 'phone_number' => 'required',
                 'address' => 'required',
-                'isactive' => 'boolean'
-            ], [
-                'name.required' => 'Nama harus diisi',
-                'email.unique' => 'Email sudah digunakan',
-                'username.unique' => 'Username already digunakan',
-                'password.min' => 'Password harus lebih dari 5 karakter',
-                'phone_number.required' => 'Nomor telepon harus diisi',
-                'address.required' => 'Alamat harus diisi',
-                'role_id.required' => 'Role harus dipilih',
+                'isactive' => 'boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
     
             if ($validator->fails()) {
@@ -53,6 +46,14 @@ class UserController extends Controller
             }
     
             $data = $validator->validated();
+            
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/users', $imageName);
+                $data['image'] = 'users/' . $imageName;
+            }
+    
             $data['password'] = Hash::make($data['password']);
             $data['isactive'] = $request->has('isactive');
     
@@ -72,6 +73,7 @@ class UserController extends Controller
         }
     }
     
+    
     public function update(Request $request, User $user)
     {
         try {
@@ -82,25 +84,29 @@ class UserController extends Controller
                 'phone_number' => 'required',
                 'address' => 'required',
                 'role_id' => 'required|exists:roles,id',
-                'isactive' => 'required|in:0,1' // This ensures only 0 or 1 values
+                'isactive' => 'required|in:0,1',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
     
-            // Convert checkbox value to 0 or 1
+            if ($request->hasFile('image')) {
+                // Hapus image lama jika ada
+                if ($user->image && Storage::exists('public/' . $user->image)) {
+                    Storage::delete('public/' . $user->image);
+                }
+                
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/users', $imageName);
+                $validated['image'] = 'users/' . $imageName;
+            }
+    
             $validated['isactive'] = $request->isactive ? 1 : 0;
-            
             $user->update($validated);
     
             return response()->json([
                 'status' => true,
                 'message' => 'Data user berhasil diperbarui',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'username' => $user->username,
-                    'role_id' => $user->role_id,
-                    'isactive' => $user->isactive
-                ]
+                'data' => $user
             ], 200);
     
         } catch (ValidationException $e) {
@@ -117,6 +123,7 @@ class UserController extends Controller
             ], 500);
         }
     }
+    
     
     
     
