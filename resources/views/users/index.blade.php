@@ -46,11 +46,11 @@
                     <a href="#" class="card-btn" data-bs-toggle="modal" data-bs-target="#modal-edit-user"
                        onclick="UserManager.editUser({{ $user->id }})">
                         <i class="ti ti-edit icon"></i>
-                        Edit
+                        
                     </a>
                     <a href="#" class="card-btn text-danger" onclick="UserManager.deleteUser({{ $user->id }})">
                         <i class="ti ti-trash icon"></i>
-                        Delete
+                        
                     </a>
                 </div>
             </div>

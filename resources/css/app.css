@@ -178,3 +178,6 @@ body {
     font-weight: bold;
 }
 
+.form-select {
+    height: 50px !important;
+}
